@@ -1,0 +1,64 @@
+version: '2'
+
+services:
+
+  # elasticsearch:
+  #   image: docker.elastic.co/elasticsearch/elasticsearch-oss:6.6.1
+  #   volumes:
+  #     - ./elasticsearch/config/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml:ro
+  #   ports:
+  #     - "9200:9200"
+  #     - "9300:9300"
+  #   environment:
+  #     ES_JAVA_OPTS: "-Xmx256m -Xms256m"
+  #   networks:
+  #     - mentor
+
+  # logstash:
+  #   image: docker.elastic.co/logstash/logstash-oss:6.6.1
+  #   volumes:
+  #     - ./logstash/config/logstash.yml:/usr/share/logstash/config/logstash.yml:ro
+  #     - ./logstash/pipeline:/usr/share/logstash/pipeline:ro
+  #   ports:
+  #     - "5000:5000"
+  #     - "9600:9600"
+  #   environment:
+  #     LS_JAVA_OPTS: "-Xmx256m -Xms256m"
+  #   networks:
+  #     - mentor
+  #   depends_on:
+  #     - elasticsearch
+
+  # kibana:
+  #   image: docker.elastic.co/kibana/kibana-oss:6.6.1
+  #   volumes:
+  #     - ./kibana/config/:/usr/share/kibana/config:ro
+  #   ports:
+  #     - "5601:5601"
+  #   networks:
+  #     - mentor
+  #   depends_on:
+  #     - elasticsearch
+
+  mysql:
+    image: mysql:latest
+    environment:
+      MYSQL_ROOT_PASSWORD: petclinic
+    volumes:
+      - /var/lib/mysql/mysql:/var/lib/mysql
+    ports:
+      - 3306:3306
+    networks:
+      - mentor
+  petclinic:
+    build:
+      context: ./petclinic-tomcat
+    depends_on:
+      - mysql
+    networks:
+      - mentor
+    ports:
+      - 8080:8080
+networks:
+  mentor:
+    driver: bridge
